@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { ConfigurationService } from '../services/ConfigurationService';
+import { OverlayConfiguration } from '../../shared/types';
 
 const LauncherApp: React.FC = () => {
   const [stats, setStats] = useState({
@@ -13,6 +15,10 @@ const LauncherApp: React.FC = () => {
     hotkey: 'F10',
     autoStart: true
   });
+
+  const [overlayConfig, setOverlayConfig] = useState<OverlayConfiguration>(
+    ConfigurationService.getInstance().getConfiguration()
+  );
 
   useEffect(() => {
     setStats({
@@ -139,7 +145,7 @@ const LauncherApp: React.FC = () => {
                 }}
               />
             </div>
-            <div>
+            <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'flex', alignItems: 'center', fontSize: '12px', cursor: 'pointer' }}>
                 <input 
                   type="checkbox" 
@@ -149,6 +155,77 @@ const LauncherApp: React.FC = () => {
                 />
                 Auto-start with League
               </label>
+            </div>
+            
+            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.2)', paddingTop: '12px', marginTop: '12px' }}>
+              <h5 style={{ marginBottom: '8px', fontSize: '12px', color: '#ffd700' }}>Quick Overlay Settings</h5>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={overlayConfig.sections.championRules}
+                    onChange={(e) => {
+                      const newConfig = { ...overlayConfig };
+                      newConfig.sections.championRules = e.target.checked;
+                      setOverlayConfig(newConfig);
+                      ConfigurationService.getInstance().updateConfiguration(newConfig);
+                    }}
+                    style={{ marginRight: '6px' }}
+                  />
+                  Show Champion Rules
+                </label>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={overlayConfig.sections.objectiveTimers}
+                    onChange={(e) => {
+                      const newConfig = { ...overlayConfig };
+                      newConfig.sections.objectiveTimers = e.target.checked;
+                      setOverlayConfig(newConfig);
+                      ConfigurationService.getInstance().updateConfiguration(newConfig);
+                    }}
+                    style={{ marginRight: '6px' }}
+                  />
+                  Show Objective Timers
+                </label>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={overlayConfig.sections.advicePanel}
+                    onChange={(e) => {
+                      const newConfig = { ...overlayConfig };
+                      newConfig.sections.advicePanel = e.target.checked;
+                      setOverlayConfig(newConfig);
+                      ConfigurationService.getInstance().updateConfiguration(newConfig);
+                    }}
+                    style={{ marginRight: '6px' }}
+                  />
+                  Show Macro Advice
+                </label>
+              </div>
+              <div style={{ marginBottom: '8px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', fontSize: '11px', cursor: 'pointer' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={overlayConfig.sections.playerStats}
+                    onChange={(e) => {
+                      const newConfig = { ...overlayConfig };
+                      newConfig.sections.playerStats = e.target.checked;
+                      setOverlayConfig(newConfig);
+                      ConfigurationService.getInstance().updateConfiguration(newConfig);
+                    }}
+                    style={{ marginRight: '6px' }}
+                  />
+                  Show Player Stats
+                </label>
+              </div>
+              <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '8px' }}>
+                Use gear icon (⚙️) in overlay for detailed settings
+              </div>
             </div>
           </div>
         </div>

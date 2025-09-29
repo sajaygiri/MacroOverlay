@@ -1,12 +1,13 @@
 import React from 'react';
-import { GameState, ChampionRule } from '../../shared/types';
+import { GameState, ChampionRule, OverlayConfiguration } from '../../shared/types';
 import dianaRulesData from '../data/diana-rules.json';
 
 interface DianaRulesProps {
   gameState: GameState;
+  config: OverlayConfiguration['championRulesConfig'];
 }
 
-const DianaRules: React.FC<DianaRulesProps> = ({ gameState }) => {
+const DianaRules: React.FC<DianaRulesProps> = ({ gameState, config }) => {
   const evaluateRule = (rule: ChampionRule, gameState: GameState): boolean => {
     const { condition } = rule;
     const { playerLevel, gameTime } = gameState;
@@ -46,11 +47,12 @@ const DianaRules: React.FC<DianaRulesProps> = ({ gameState }) => {
   const currentPhase = getPhase(gameState.gameTime, gameState.playerLevel);
   const rules = dianaRulesData.rules as ChampionRule[];
   
-  const relevantRules = rules
-    .filter(rule => rule.phase === currentPhase || rule.phase === 'early')
+  let relevantRules = rules
+    .filter(rule => config.showOnlyActivePhase ? rule.phase === currentPhase : true)
+    .filter(rule => rule.priority <= config.priorityFilter)
     .filter(rule => evaluateRule(rule, gameState))
     .sort((a, b) => a.priority - b.priority)
-    .slice(0, 5);
+    .slice(0, config.maxRules);
 
   return (
     <ul className="rules-list">

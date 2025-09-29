@@ -1,11 +1,12 @@
 import React from 'react';
-import { AdviceState } from '../../shared/types';
+import { AdviceState, OverlayConfiguration } from '../../shared/types';
 
 interface AdvicePanelProps {
   advice: AdviceState;
+  config: OverlayConfiguration['adviceConfig'];
 }
 
-const AdvicePanel: React.FC<AdvicePanelProps> = ({ advice }) => {
+const AdvicePanel: React.FC<AdvicePanelProps> = ({ advice, config }) => {
   const getAdviceClass = (type: string): string => {
     switch (type) {
       case 'fight':
@@ -34,15 +35,19 @@ const AdvicePanel: React.FC<AdvicePanelProps> = ({ advice }) => {
 
   return (
     <div className={`advice-box ${getAdviceClass(advice.type)}`}>
-      <div style={{ marginBottom: '4px', fontSize: '16px' }}>
-        {getAdviceIcon(advice.type)}
-      </div>
-      <div style={{ marginBottom: '4px' }}>
+      {config.showIcon && (
+        <div style={{ marginBottom: '4px', fontSize: '16px' }}>
+          {getAdviceIcon(advice.type)}
+        </div>
+      )}
+      <div style={{ marginBottom: config.showConfidence ? '4px' : '0' }}>
         {advice.message}
       </div>
-      <div style={{ fontSize: '10px', opacity: 0.8 }}>
-        Confidence: {Math.round(advice.confidence)}%
-      </div>
+      {config.showConfidence && (
+        <div style={{ fontSize: '10px', opacity: 0.8 }}>
+          Confidence: {Math.round(advice.confidence)}%
+        </div>
+      )}
     </div>
   );
 };

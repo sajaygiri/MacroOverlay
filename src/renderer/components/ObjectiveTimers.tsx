@@ -1,12 +1,13 @@
 import React from 'react';
-import { GameState } from '../../shared/types';
+import { GameState, OverlayConfiguration } from '../../shared/types';
 import goldValues from '../data/gold-values.json';
 
 interface ObjectiveTimersProps {
   gameState: GameState;
+  config: OverlayConfiguration['objectiveConfig'];
 }
 
-const ObjectiveTimers: React.FC<ObjectiveTimersProps> = ({ gameState }) => {
+const ObjectiveTimers: React.FC<ObjectiveTimersProps> = ({ gameState, config }) => {
   const formatTime = (seconds: number): string => {
     if (seconds <= 0) return 'UP';
     const mins = Math.floor(seconds / 60);
@@ -47,47 +48,72 @@ const ObjectiveTimers: React.FC<ObjectiveTimersProps> = ({ gameState }) => {
     }
   };
 
+  const isWarning = (timeToSpawn: number): boolean => {
+    return timeToSpawn <= config.warningThreshold && timeToSpawn > 0;
+  };
+
   return (
     <div>
-      <div className="objective-timer">
-        <span>Dragon ({goldValues.objectives.dragon}g):</span>
-        <span className="timer-value">
-          {formatTime(getTimeToSpawn(gameState.objectives.dragon.spawnsAt))}
-        </span>
-      </div>
-      
-      {gameState.objectives.herald.spawnsAt > 0 && (
+      {config.showUpcoming && (
         <div className="objective-timer">
-          <span>Herald ({goldValues.objectives.herald}g):</span>
-          <span className="timer-value">
+          <span>
+            Dragon{config.showGoldValues ? ` (${goldValues.objectives.dragon}g)` : ''}:
+          </span>
+          <span 
+            className="timer-value"
+            style={{ color: isWarning(getTimeToSpawn(gameState.objectives.dragon.spawnsAt)) ? '#ffff00' : '#87ceeb' }}
+          >
+            {formatTime(getTimeToSpawn(gameState.objectives.dragon.spawnsAt))}
+          </span>
+        </div>
+      )}
+      
+      {config.showUpcoming && gameState.objectives.herald.spawnsAt > 0 && (
+        <div className="objective-timer">
+          <span>
+            Herald{config.showGoldValues ? ` (${goldValues.objectives.herald}g)` : ''}:
+          </span>
+          <span 
+            className="timer-value"
+            style={{ color: isWarning(getTimeToSpawn(gameState.objectives.herald.spawnsAt)) ? '#ffff00' : '#87ceeb' }}
+          >
             {formatTime(getTimeToSpawn(gameState.objectives.herald.spawnsAt))}
           </span>
         </div>
       )}
       
-      {gameState.gameTime >= 1200 && (
+      {config.showUpcoming && gameState.gameTime >= 1200 && (
         <div className="objective-timer">
-          <span>Baron ({goldValues.objectives.baron}g):</span>
-          <span className="timer-value">
+          <span>
+            Baron{config.showGoldValues ? ` (${goldValues.objectives.baron}g)` : ''}:
+          </span>
+          <span 
+            className="timer-value"
+            style={{ color: isWarning(getTimeToSpawn(gameState.objectives.baron.spawnsAt)) ? '#ffff00' : '#87ceeb' }}
+          >
             {formatTime(getTimeToSpawn(gameState.objectives.baron.spawnsAt))}
           </span>
         </div>
       )}
 
-      <div style={{ 
-        marginTop: '12px', 
-        padding: '8px', 
-        background: 'rgba(255, 215, 0, 0.1)', 
-        borderRadius: '4px',
-        fontSize: '11px'
-      }}>
-        <strong>Next Best:</strong> {getNextBestTrade()}
-      </div>
+      {config.showTradeAdvice && (
+        <div style={{ 
+          marginTop: '12px', 
+          padding: '8px', 
+          background: 'rgba(255, 215, 0, 0.1)', 
+          borderRadius: '4px',
+          fontSize: '11px'
+        }}>
+          <strong>Next Best:</strong> {getNextBestTrade()}
+        </div>
+      )}
 
-      <div style={{ marginTop: '8px', fontSize: '10px', opacity: 0.8 }}>
-        <div>Plate: {goldValues.objectives.towerPlate}g</div>
-        <div>Wave: {goldValues.objectives.cannonWave}g</div>
-      </div>
+      {config.showGoldValues && (
+        <div style={{ marginTop: '8px', fontSize: '10px', opacity: 0.8 }}>
+          <div>Plate: {goldValues.objectives.towerPlate}g</div>
+          <div>Wave: {goldValues.objectives.cannonWave}g</div>
+        </div>
+      )}
     </div>
   );
 };

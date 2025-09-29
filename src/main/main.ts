@@ -47,6 +47,7 @@ class MacroOverlayApp {
     this.mainWindow.loadFile(path.join(__dirname, 'index.html'));
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow?.show();
+      this.mainWindow?.webContents.openDevTools();
     });
   }
 
@@ -75,6 +76,8 @@ class MacroOverlayApp {
     this.overlayWindow.loadFile(path.join(__dirname, 'index.html'), {
       query: { mode: 'overlay' }
     });
+
+    this.overlayWindow.webContents.openDevTools();
 
     this.overlayWindow.on('closed', () => {
       this.overlayWindow = null;

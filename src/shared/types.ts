@@ -34,3 +34,42 @@ export interface GoldEquivalence {
   tower: number;
   cannonWave: number;
 }
+
+export interface OverlayConfiguration {
+  sections: {
+    championRules: boolean;
+    objectiveTimers: boolean;
+    advicePanel: boolean;
+    goldStatus: boolean;
+    gameTime: boolean;
+    playerStats: boolean;
+  };
+  championRulesConfig: {
+    maxRules: number;
+    showOnlyActivePhase: boolean;
+    priorityFilter: number;
+  };
+  objectiveConfig: {
+    showUpcoming: boolean;
+    showGoldValues: boolean;
+    showTradeAdvice: boolean;
+    warningThreshold: number;
+  };
+  adviceConfig: {
+    showConfidence: boolean;
+    minimumConfidence: number;
+    showIcon: boolean;
+  };
+  displayConfig: {
+    opacity: number;
+    fontSize: 'small' | 'medium' | 'large';
+    compactMode: boolean;
+    position: { x: number; y: number };
+    size: { width: number; height: number };
+  };
+  hotkeys: {
+    toggle: string;
+    cycleMode: string;
+    resetPosition: string;
+  };
+}
