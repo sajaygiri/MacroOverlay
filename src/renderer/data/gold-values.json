@@ -1,0 +1,51 @@
+{
+  "objectives": {
+    "dragon": 450,
+    "herald": 500,
+    "baron": 1500,
+    "tower": 550,
+    "cannonWave": 150,
+    "towerPlate": 200
+  },
+  "timeBasedValues": {
+    "towerPlates": {
+      "0-5min": 160,
+      "5-10min": 200,
+      "10-14min": 240,
+      "14min+": 0
+    },
+    "shutdowns": {
+      "300": 450,
+      "450": 700,
+      "600": 1000,
+      "750": 1200,
+      "900": 1500
+    }
+  },
+  "tradeEquivalencies": [
+    {
+      "give": ["dragon"],
+      "take": ["herald", "towerPlate", "towerPlate"],
+      "value": 50,
+      "description": "Herald + 2 plates > Dragon"
+    },
+    {
+      "give": ["tower"],
+      "take": ["dragon", "cannonWave"],
+      "value": -50,
+      "description": "Tower slightly > Dragon + wave"
+    },
+    {
+      "give": ["baron"],
+      "take": ["dragon", "dragon", "tower"],
+      "value": -50,
+      "description": "Baron > 2 Dragons + Tower"
+    },
+    {
+      "give": ["herald"],
+      "take": ["dragon"],
+      "value": 50,
+      "description": "Herald > Early Dragon"
+    }
+  ]
+}

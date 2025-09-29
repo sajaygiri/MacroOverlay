@@ -1,0 +1,84 @@
+{
+  "name": "macrooverlay",
+  "productName": "MacroOverlay",
+  "version": "1.0.0",
+  "description": "League of Legends Macro Companion - Overlay app for improving gameplay",
+  "main": "dist/main.js",
+  "homepage": ".",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "build:dev": "webpack --mode=development",
+    "start": "npm run build:dev && electron .",
+    "dev": "webpack --mode=development --watch",
+    "package": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:overlay": "playwright test tests/e2e/overlay.spec.ts",
+    "test:launcher": "playwright test tests/e2e/launcher.spec.ts", 
+    "test:lcu": "playwright test tests/e2e/lcu-integration.spec.ts",
+    "test:hotkeys": "playwright test tests/e2e/hotkeys.spec.ts",
+    "test:report": "playwright show-report",
+    "lint": "echo \"No linting configured\""
+  },
+  "keywords": [],
+  "author": {
+    "name": "sajaygiri",
+    "email": "s.ajaygiri@gmail.com"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@types/react": "^19.1.15",
+    "@types/react-dom": "^19.1.9",
+    "axios": "^1.12.2",
+    "electron-squirrel-startup": "^1.0.1",
+    "https": "^1.0.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.9.0",
+    "@electron-forge/maker-deb": "^7.9.0",
+    "@electron-forge/maker-rpm": "^7.9.0",
+    "@electron-forge/maker-squirrel": "^7.9.0",
+    "@electron-forge/maker-zip": "^7.9.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
+    "@electron-forge/plugin-fuses": "^7.9.0",
+    "@electron/fuses": "^1.8.0",
+    "@playwright/test": "^1.55.1",
+    "@types/node": "^24.6.0",
+    "css-loader": "^7.1.2",
+    "electron": "38.2.0",
+    "electron-builder": "^26.0.12",
+    "html-webpack-plugin": "^5.6.4",
+    "playwright-electron": "^0.5.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "webpack": "^5.102.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "build": {
+    "appId": "com.macrooverlay.app",
+    "productName": "MacroOverlay",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.games",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

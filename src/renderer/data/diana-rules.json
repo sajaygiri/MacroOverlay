@@ -1,0 +1,75 @@
+{
+  "champion": "Diana",
+  "rules": [
+    {
+      "id": "diana_early_1",
+      "phase": "early",
+      "condition": "level < 6",
+      "text": "Play safe until level 6 - Diana is weak pre-6",
+      "priority": 1
+    },
+    {
+      "id": "diana_early_2", 
+      "phase": "early",
+      "condition": "level < 6 && mana < 50%",
+      "text": "Conserve mana for last hits and trades",
+      "priority": 2
+    },
+    {
+      "id": "diana_power_spike_1",
+      "phase": "mid",
+      "condition": "level >= 6",
+      "text": "Level 6 power spike - Look for all-ins with R",
+      "priority": 1
+    },
+    {
+      "id": "diana_power_spike_2",
+      "phase": "mid", 
+      "condition": "hasItem('Nashor's Tooth')",
+      "text": "Nashor's completed - Major power spike for trades",
+      "priority": 1
+    },
+    {
+      "id": "diana_teamfight_1",
+      "phase": "late",
+      "condition": "gameTime > 900 && hasItem('Zhonya's Hourglass')",
+      "text": "Look for flanks in teamfights with Zhonya's safety",
+      "priority": 1
+    },
+    {
+      "id": "diana_combo_1",
+      "phase": "mid",
+      "condition": "level >= 6",
+      "text": "Combo: Q → R → W → Auto → R (if Q hit)",
+      "priority": 2
+    },
+    {
+      "id": "diana_jungle_1",
+      "phase": "early",
+      "condition": "position === 'jungle'",
+      "text": "Clear efficiently - W max for jungle clear speed",
+      "priority": 2
+    },
+    {
+      "id": "diana_objective_1",
+      "phase": "mid",
+      "condition": "level >= 11",
+      "text": "Strong objective control with AOE damage",
+      "priority": 2
+    },
+    {
+      "id": "diana_splitpush_1",
+      "phase": "late", 
+      "condition": "hasItem('Nashor's Tooth') && gameTime > 1200",
+      "text": "Can split push effectively with Nashor's",
+      "priority": 3
+    },
+    {
+      "id": "diana_roam_1",
+      "phase": "mid",
+      "condition": "level >= 6 && position === 'mid'",
+      "text": "Look for roams post-6 - High gank potential",
+      "priority": 2
+    }
+  ]
+}
