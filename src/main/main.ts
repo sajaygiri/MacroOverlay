@@ -38,7 +38,7 @@ class MacroOverlayApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, 'preload.ts'),
+        preload: path.join(__dirname, 'preload.js'),
       },
       title: 'MacroOverlay - League of Legends Companion',
       show: false,
@@ -68,7 +68,7 @@ class MacroOverlayApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, 'preload.ts'),
+        preload: path.join(__dirname, 'preload.js'),
       },
     });
 
