@@ -226,6 +226,37 @@ const LauncherApp: React.FC = () => {
               <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '8px' }}>
                 Use gear icon (⚙️) in overlay for detailed settings
               </div>
+              
+              <button 
+                onClick={() => {
+                  if (window.electronAPI) {
+                    window.electronAPI.moveOverlayToGame();
+                  }
+                }}
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  border: 'none',
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginTop: '12px',
+                  width: '100%',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                📍 Move Overlay to Game
+              </button>
             </div>
           </div>
         </div>

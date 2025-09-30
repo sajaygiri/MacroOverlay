@@ -19,6 +19,9 @@ const OverlayApp: React.FC = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartBounds, setResizeStartBounds] = useState({ width: 0, height: 0, x: 0, y: 0 });
   const [useMockData, setUseMockData] = useState(false);
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date | null>(null);
+  const [apiCallCount, setApiCallCount] = useState(0);
+  const [pollFunction, setPollFunction] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     const configService = ConfigurationService.getInstance();
@@ -43,33 +46,45 @@ const OverlayApp: React.FC = () => {
     });
 
     const pollGameState = async () => {
+      const currentTime = new Date();
+      setApiCallCount(prev => prev + 1);
+      
       try {
         if (useMockData) {
           const mockState = getMockGameState();
           setGameState(mockState);
           setIsConnected(true);
+          setLastUpdateTime(currentTime);
           const newAdvice = adviceEngine.getAdvice(mockState);
           setAdvice(newAdvice);
+          console.log(`[${currentTime.toLocaleTimeString()}] Mock data updated - Call #${apiCallCount + 1}`);
           return;
         }
 
+        console.log(`[${currentTime.toLocaleTimeString()}] Polling LCU for game state... (Call #${apiCallCount + 1})`);
         const state = await lcuService.getGameState();
+        console.log('LCU Response:', state);
         setGameState(state);
         setIsConnected(true);
+        setLastUpdateTime(currentTime);
 
         if (state && state.isInGame) {
           const newAdvice = adviceEngine.getAdvice(state);
           setAdvice(newAdvice);
+          console.log('Game detected, advice generated:', newAdvice);
         }
       } catch (error) {
+        console.log(`[${currentTime.toLocaleTimeString()}] LCU Connection failed:`, error instanceof Error ? error.message : String(error));
         setIsConnected(false);
         setGameState(null);
         setAdvice(null);
+        setLastUpdateTime(null);
       }
     };
 
     const interval = setInterval(pollGameState, 2000);
     pollGameState();
+    setPollFunction(() => pollGameState);
 
     return () => {
       clearInterval(interval);
@@ -174,7 +189,7 @@ const OverlayApp: React.FC = () => {
   // Hotkey handling
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'F10') {
+      if (e.key === 'F8') {
         e.preventDefault();
         if (window.electronAPI) {
           window.electronAPI.toggleOverlay();
@@ -189,7 +204,7 @@ const OverlayApp: React.FC = () => {
   return (
     <div className="overlay-container" style={{...getContainerStyle(), position: 'relative'}}>
       <div className="overlay-header">
-        <div className="overlay-title">MacroOverlay</div>
+        <div className="overlay-title">MacroOverlay {useMockData ? '(MOCK)' : ''}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button 
             className="config-icon-btn" 
@@ -206,6 +221,23 @@ const OverlayApp: React.FC = () => {
           >
             ≡
           </div>
+        </div>
+      </div>
+
+      {/* API Status Section - Always visible for debugging */}
+      <div className="section" style={{ background: 'rgba(0, 255, 0, 0.1)', border: '1px solid rgba(0, 255, 0, 0.3)' }}>
+        <div className="section-title" style={{ fontSize: '11px', color: '#90ee90' }}>API Status</div>
+        <div style={{ fontSize: '10px', opacity: 0.9 }}>
+          <div>Connected: {isConnected ? '✅' : '❌'}</div>
+          <div>Calls: {apiCallCount}</div>
+          <div>Last Update: {lastUpdateTime ? lastUpdateTime.toLocaleTimeString() : 'Never'}</div>
+          {gameState && (
+            <>
+              <div>In Game: {gameState.isInGame ? '✅' : '❌'}</div>
+              <div>Game Time: {formatGameTime(gameState.gameTime)}</div>
+              <div>Champion: {gameState.playerChampion || 'None'}</div>
+            </>
+          )}
         </div>
       </div>
 
@@ -232,10 +264,30 @@ const OverlayApp: React.FC = () => {
               borderRadius: '4px',
               fontSize: '10px',
               cursor: 'pointer',
-              width: '100%'
+              width: '100%',
+              marginBottom: '4px'
             }}
           >
             Enable Mock Data (Testing)
+          </button>
+          <button 
+            onClick={() => {
+              if (window.electronAPI) {
+                window.electronAPI.moveOverlayToGame();
+              }
+            }}
+            style={{
+              background: 'rgba(102, 126, 234, 0.2)',
+              border: '1px solid #667eea',
+              color: '#667eea',
+              padding: '4px 8px',
+              borderRadius: '4px',
+              fontSize: '10px',
+              cursor: 'pointer',
+              width: '100%'
+            }}
+          >
+            📍 Move to Game
           </button>
         </div>
       )}
@@ -310,11 +362,64 @@ const OverlayApp: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* Live Data Test Section */}
+          <div className="section" style={{ background: 'rgba(255, 165, 0, 0.1)', border: '1px solid rgba(255, 165, 0, 0.3)' }}>
+            <div className="section-title" style={{ fontSize: '11px', color: '#ffa500' }}>Live Data Test</div>
+            <div style={{ fontSize: '10px', opacity: 0.9 }}>
+              <div>Current Time: {new Date().toLocaleTimeString()}</div>
+              <div>Team Gold: {gameState.teamGold.toLocaleString()}g</div>
+              <div>Enemy Gold: {gameState.enemyGold.toLocaleString()}g</div>
+              <div>Gold Diff: {(gameState.teamGold - gameState.enemyGold > 0 ? '+' : '')}{(gameState.teamGold - gameState.enemyGold).toLocaleString()}g</div>
+              <div>Dragon: {gameState.objectives.dragon.spawnsAt}s</div>
+              <div>Baron: {gameState.objectives.baron.spawnsAt}s</div>
+            </div>
+          </div>
         </>
       )}
 
       <div style={{ fontSize: '10px', opacity: 0.7, marginTop: '16px', textAlign: 'center' }}>
-        {config.hotkeys.toggle} to toggle • Drag to move • ⚙️ to configure
+        F8 to toggle • Drag to move • ⚙️ to configure
+      </div>
+
+      {/* Debug Controls */}
+      <div style={{ marginTop: '8px', textAlign: 'center' }}>
+        <button 
+          onClick={() => {
+            if (pollFunction) {
+              pollFunction();
+            }
+          }}
+          style={{
+            background: 'rgba(0, 255, 0, 0.2)',
+            border: '1px solid #00ff00',
+            color: '#00ff00',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontSize: '9px',
+            cursor: 'pointer',
+            marginRight: '4px'
+          }}
+        >
+          🔄 Force Refresh
+        </button>
+        <button 
+          onClick={() => {
+            setApiCallCount(0);
+            setLastUpdateTime(null);
+          }}
+          style={{
+            background: 'rgba(255, 0, 0, 0.2)',
+            border: '1px solid #ff0000',
+            color: '#ff0000',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontSize: '9px',
+            cursor: 'pointer'
+          }}
+        >
+          🗑️ Reset Stats
+        </button>
       </div>
 
       {/* Resize handle */}

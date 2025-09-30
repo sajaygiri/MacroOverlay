@@ -54,6 +54,8 @@ class MacroOverlayApp {
   private createOverlayWindow() {
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
     
+    console.log('Creating overlay window at position:', width - 420, 20);
+    
     this.overlayWindow = new BrowserWindow({
       width: 400,
       height: 600,
@@ -77,6 +79,9 @@ class MacroOverlayApp {
       query: { mode: 'overlay' }
     });
 
+    console.log('Overlay window created, showing:', this.overlayWindow.isVisible());
+    console.log('Overlay window always on top:', this.overlayWindow.isAlwaysOnTop());
+
     this.overlayWindow.webContents.openDevTools();
 
     this.overlayWindow.on('closed', () => {
@@ -85,7 +90,7 @@ class MacroOverlayApp {
   }
 
   private setupGlobalShortcuts() {
-    globalShortcut.register('F10', () => {
+    globalShortcut.register('F8', () => {
       this.toggleOverlay();
     });
 
@@ -134,6 +139,86 @@ class MacroOverlayApp {
       }
       return null;
     });
+
+    ipcMain.handle('move-overlay-to-game', () => {
+      if (this.overlayWindow) {
+        this.moveOverlayToGame();
+      }
+    });
+  }
+
+  private moveOverlayToGame() {
+    if (!this.overlayWindow) return;
+
+    try {
+      const { exec } = require('child_process');
+      
+      // Find League of Legends window using wmctrl (Linux)
+      exec('wmctrl -l | grep -i "league\\|riot"', (error: any, stdout: string) => {
+        if (error) {
+          console.log('Could not find League window, using default position');
+          this.positionOverlayDefault();
+          return;
+        }
+
+        // Parse window info and get window geometry
+        const windowLine = stdout.split('\n')[0];
+        if (windowLine) {
+          const windowId = windowLine.split(' ')[0];
+          
+          exec(`xwininfo -id ${windowId}`, (error: any, stdout: string) => {
+            if (error) {
+              console.log('Could not get window info, using default position');
+              this.positionOverlayDefault();
+              return;
+            }
+
+            // Parse window geometry
+            const lines = stdout.split('\n');
+            const xLine = lines.find(line => line.includes('Absolute upper-left X:'));
+            const yLine = lines.find(line => line.includes('Absolute upper-left Y:'));
+            const widthLine = lines.find(line => line.includes('Width:'));
+            const heightLine = lines.find(line => line.includes('Height:'));
+
+            if (xLine && yLine && widthLine && heightLine) {
+              const gameX = parseInt(xLine.split(':')[1].trim());
+              const gameY = parseInt(yLine.split(':')[1].trim());
+              const gameWidth = parseInt(widthLine.split(':')[1].trim());
+              const gameHeight = parseInt(heightLine.split(':')[1].trim());
+
+              // Position overlay on the right side of the game window
+              const overlayX = gameX + gameWidth - 420; // 20px margin from right
+              const overlayY = gameY + 50; // 50px from top of game window
+
+              console.log(`Moving overlay to game position: ${overlayX}, ${overlayY}`);
+              this.overlayWindow?.setPosition(overlayX, overlayY);
+              this.overlayWindow?.show();
+              this.overlayWindow?.focus();
+            } else {
+              this.positionOverlayDefault();
+            }
+          });
+        } else {
+          this.positionOverlayDefault();
+        }
+      });
+    } catch (error) {
+      console.log('Error finding League window:', error);
+      this.positionOverlayDefault();
+    }
+  }
+
+  private positionOverlayDefault() {
+    if (!this.overlayWindow) return;
+    
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+    const overlayX = width - 420;
+    const overlayY = 20;
+    
+    console.log(`Using default overlay position: ${overlayX}, ${overlayY}`);
+    this.overlayWindow.setPosition(overlayX, overlayY);
+    this.overlayWindow.show();
+    this.overlayWindow.focus();
   }
 
   private toggleOverlay() {

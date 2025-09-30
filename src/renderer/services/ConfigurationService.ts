@@ -52,7 +52,7 @@ export class ConfigurationService {
         size: { width: 400, height: 600 }
       },
       hotkeys: {
-        toggle: 'F10',
+        toggle: 'F8',
         cycleMode: 'F11',
         resetPosition: 'F12'
       }
