@@ -38,7 +38,7 @@ class MacroOverlayApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(__dirname, 'preload.ts'),
       },
       title: 'MacroOverlay - League of Legends Companion',
       show: false,
@@ -68,7 +68,7 @@ class MacroOverlayApp {
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
-        preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(__dirname, 'preload.ts'),
       },
     });
 
@@ -120,6 +120,19 @@ class MacroOverlayApp {
       if (this.overlayWindow) {
         this.overlayWindow.setSize(width, height);
       }
+    });
+
+    ipcMain.handle('set-click-through', (_, enabled: boolean) => {
+      if (this.overlayWindow) {
+        this.overlayWindow.setIgnoreMouseEvents(enabled);
+      }
+    });
+
+    ipcMain.handle('get-overlay-bounds', () => {
+      if (this.overlayWindow) {
+        return this.overlayWindow.getBounds();
+      }
+      return null;
     });
   }
 
